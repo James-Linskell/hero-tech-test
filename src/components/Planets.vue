@@ -31,11 +31,35 @@
 </template>
 
 <script>
+
+import { getPlanets } from "../utils/apiRequests";
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
-  }
+  },
+  data() {
+    return {
+      isLoading: false,
+    }
+  },
+  methods: {
+    // Load planets from SWAPI
+    loadPlanets() {
+      this.isLoading = true;
+      console.log(this.isLoading);
+      getPlanets().then((response => {
+        // Set loading to finished
+        this.isLoading = false;
+        console.log(this.isLoading);
+        console.log(response);
+      }));
+    }
+  },
+  mounted() {
+    this.loadPlanets();
+  },
 }
 </script>
 
