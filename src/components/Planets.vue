@@ -1,32 +1,28 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+  <v-simple-table v-if="planets.length > 0 && planetHeaders.length > 0">
+    <template v-slot:default>
+      <thead>
+        <tr>
+          <th class="text-left">
+            Name
+          </th>
+          <th class="text-left">
+            Terrain
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="item in planets"
+          :key="item.name"
+        >
+          <td><a :href="item.url" target="_blank" rel="noopener noreferrer">{{ item.name }}</a></td>
+          <td>{{ item.terrain }}</td>
+        </tr>
+      </tbody>
+    </template>
+  </v-simple-table>
   </div>
 </template>
 
@@ -42,19 +38,44 @@ export default {
   data() {
     return {
       isLoading: false,
+      planets: [],
+      planetHeaders: [],
     }
   },
   methods: {
     // Load planets from SWAPI
     loadPlanets() {
+      // Set loading spinner running
       this.isLoading = true;
       console.log(this.isLoading);
+      // Fetch planets
       getPlanets().then((response => {
+        // Get a sample of the headers from the first result
+        const headers = Object.keys(response[0]);
+        this.planetHeaders = this.formatHeaders(headers);
+        this.planets = response;
         // Set loading to finished
         this.isLoading = false;
+
         console.log(this.isLoading);
         console.log(response);
-      }));
+      })).catch(() => {
+        console.log("ERROR");
+      });
+    },
+    // Formats the headers and capitalises them for the v-table
+    formatHeaders(headers) {
+      const formattedHeaders = [];
+      headers.forEach(header => {
+        formattedHeaders.push({
+          text: header.charAt(0).toUpperCase() + header.slice(1),
+          value: header
+        })
+        console.log(header);
+      })
+
+      console.log(formattedHeaders);
+      return formattedHeaders;
     }
   },
   mounted() {
@@ -65,18 +86,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
 </style>
