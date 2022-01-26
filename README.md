@@ -1,6 +1,9 @@
 # Hero Tech Test
 
 ## Project setup
+Install Node.js: https://nodejs.org/en/
+
+Run:
 ```
 npm install
 ```
