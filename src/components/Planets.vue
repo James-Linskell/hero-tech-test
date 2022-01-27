@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="data-table">
+    <div class="container">
       <!-- The table -->
       <v-simple-table v-if="planets.length > 0 && planetHeaders.length > 0">
         <template v-slot:default>
@@ -31,11 +31,11 @@
               v-for="planet in planets"
               :key="planet.name"
             >
-              <td class="text-left"><a :href="planet.url" target="_blank" rel="noopener noreferrer">{{ planet.name }}</a></td>
-              <td class="text-left">{{ planet.climate }}</td>
-              <td class="text-left">{{ planet.residents.length }}</td>
-              <td class="text-left">{{ planet.terrain }}</td>
-              <td class="text-left">{{ planet.population }}</td>
+              <td class="text-left"><a :href="planet.url" target="_blank" rel="noopener noreferrer">{{ formatString(planet.name) }}</a></td>
+              <td class="text-left">{{ formatString(planet.climate) }}</td>
+              <td class="text-left">{{ formatNumbers(planet.residents.length) }}</td>
+              <td class="text-left">{{ formatString(planet.terrain) }}</td>
+              <td class="text-left">{{ formatNumbers(planet.population) }}</td>
               <td class="text-left">{{ calculateSurfaceArea(planet) }}</td>
             </tr>
           </tbody>
@@ -85,22 +85,45 @@ export default {
     loadPlanets() {
       // Set loading spinner running
       this.isLoading = true;
-      console.log(this.isLoading);
       // Fetch planets
       getPlanets().then((response => {
-        // Get a sample of the headers from the first result
-        const headers = Object.keys(response[0]);
-        this.planetHeaders = this.formatHeaders(headers);
-        this.planets = response;
-        // Set loading to finished
-        this.isLoading = false;
-
-        console.log(this.isLoading);
-        console.log(response);
+        if (response.length > 0) {
+          // Get a sample of the headers from the first result
+          const headers = Object.keys(response[0]);
+          this.planetHeaders = this.formatHeaders(headers);
+          this.planets = this.sortAlphabetically(response);
+          console.log(response);
+          // Set loading to finished
+          this.isLoading = false;
+        }
       })).catch(() => {
+        // Set error status to true so error page shows
         this.errorStatus = true;
         console.log("ERROR");
       });
+    },
+    // Sort planet objects alphabetically by name
+    sortAlphabetically(planets) {
+      // List of names for sorting alphabetcally
+      const planetNames = [];
+      // Dictionary with planet names as keys, to access the objects by name
+      const planetsToSort = [];
+      // List of sorted planet objects
+      const sortedPlanets = [];
+
+      // Collect the planet names and format the dictionary
+      planets.forEach(planet => {
+        planetNames.push(planet.name);
+        planetsToSort[planet.name] = planet;
+      })
+      // Sort the planet names
+      planetNames.sort();
+      // Sort the planet objects in order by name
+      planetNames.forEach(name => {
+        sortedPlanets.push(planetsToSort[name]);
+      })
+
+      return sortedPlanets;
     },
     // Formats the headers and capitalises them for the v-table
     formatHeaders(headers) {
@@ -110,19 +133,39 @@ export default {
           text: header.charAt(0).toUpperCase() + header.slice(1),
           value: header
         })
-        console.log(header);
       })
 
-      console.log(formattedHeaders);
       return formattedHeaders;
     },
+    // Calculates the surface area assuming spherical planets
     calculateSurfaceArea(planet) {
-      console.log(planet.diameter);
-      console.log(planet.surface_water);
-      return "test";
+      // Surface area = 4(pi)*r^2 * %water
+      if (planet.diameter == "unknown" || planet.surface_water == "unknown") {
+        return "?";
+      } else {
+        return Math.round(4 * Math.PI * (Math.pow(planet.diameter / 2, 2)) * (planet.surface_water / 100));
+      }
+    },
+    // Formats numbers to "?" if the number is "unknown"
+    formatNumbers(number) {
+      if (number == "unknown") {
+        return "?";
+      } else {
+        // Regex to split numbers into groups of 3 digits with commas
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+    },
+    // Formats strings to "?" if the string is "unknown"
+    formatString(string) {
+      if (string == "unknown") {
+        return "?";
+      } else {
+        return string;
+      }
     }
   },
   mounted() {
+    // Attempts to load the planets on page load
     this.loadPlanets();
   },
 }
@@ -133,7 +176,7 @@ export default {
 .template {
   background-color: black;
 }
-.data-table {
+.container {
   margin: 40px;
   text-align: center;
 }
