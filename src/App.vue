@@ -1,6 +1,6 @@
 <template>
-  <v-app>
-    <v-main>
+  <v-app >
+    <v-main class="app">
       <Planets/>
     </v-main>
   </v-app>
@@ -21,3 +21,9 @@ export default {
   }),
 };
 </script>
+
+<style scoped>
+.app {
+  background-color: black;
+}
+</style>
