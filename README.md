@@ -13,5 +13,10 @@ npm install
 npm run serve
 ```
 
+### If the above does not work, try:
+```
+npm install -g @vue/cli
+```
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
