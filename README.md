@@ -8,7 +8,7 @@ Run:
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Compiles and runs in the browser. It can be accessed from http://localhost:8080/
 ```
 npm run serve
 ```
